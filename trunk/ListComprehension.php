@@ -2,7 +2,7 @@
 
 /**
  * List comprehensions for PHP (php-lc)
- * @version 0.1
+ * @version 0.11
  * @author Vlad Andersen <vlad.andersen@gmail.com>
  * @link http://code.google.com/p/php-lc/
  * @license GPL
@@ -171,7 +171,7 @@ class ListComprehensionObject {
 		
 		unset ($GLOBALS[ListComprehension::GLOBAL_ID]);
 		
-		if (!$this->iteratorKeyName)   
+		if (!$this->returnKey)   
 			return array_values($this->Iterable);
 			
 	    $Data = array();
