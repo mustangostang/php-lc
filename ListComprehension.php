@@ -21,15 +21,29 @@ if (!function_exists('lc')) {
 	 * 
 	 * The syntax for php-lc expressions is the following:
 	 * 
-	 * <return> for [<key> => ]<element> in <Data> [if <condition>]
+	 *    <return> for [<key> => ]<element> in <Data> [if <condition>]
 	 * 
 	 * <return> could be any expression that is using <element>, <key> (if provided, discussed below) 
 	 * or any of the passed variables. If a scalar value is used, php-lc will return an array with consecutive
 	 * numeric indexes (a list). You can also use special syntax of <return>:
 	 * 
-	 * {substr ($value, 0, 1) => $value} for $value in $Data
+	 *    {substr ($value, 0, 1) => $value} for $value in $Data
 	 * 
 	 * Using {$x => $y} as <return> will return an array with keyed indexes (a hash).
+	 *
+	 * Note: you can use a shortcut of the hash return syntax (without the curly braces) if you do not have any
+	 *       array declarations in your code.
+	 *
+	 * E.g., you can use:
+	 *
+	 *    substr ($value, 0, 1) => $value for $value in $Data
+	 *
+	 * with the same result as above. However, if you have any array declarations in your return code (or even
+	 * the string 'array') please use the full syntax:
+	 *
+	 *    { $value => array ($value) } for $value in Data
+	 *
+	 * Also please note that you can use only scalar values as keys if you choose to return hashes.
 	 * 
 	 * <key> and <element> should be regular PHP variables that you'll be using in <return> and <condition>.
 	 * When cycling through <Data>, each time <key> will be assigned to the current key value, <element> will be
@@ -45,18 +59,18 @@ if (!function_exists('lc')) {
 	 * 
 	 * The second argument of the function is a hash of variables that are passed into the list comprehension:
 	 * 
-	 * array ('Data' => $Data)
-	 * array ('Req' => $_REQUEST, 'Get' => $_GET, 'Post' => $_POST, 'serverArgCount' => count($_SERVER))
+	 *    array ('Data' => $Data)
+	 *    array ('Req' => $_REQUEST, 'Get' => $_GET, 'Post' => $_POST, 'serverArgCount' => count($_SERVER))
 	 *
 	 * The variables are known inside the list comprehension by the keys you've given them in the Data array.
 	 * 
 	 * A shorthand for writing:
 	 * 
-	 * array ('Data' => $Data, 'foo' => $foo)
+	 *    array ('Data' => $Data, 'foo' => $foo)
 	 * 
 	 * is:
 	 * 
-	 * compact ('Data', 'foo') 
+	 *    compact ('Data', 'foo') 
 	 * 
 	 * @param string $expression List comprehension expression
 	 * @param array $Data List comprehension variables
@@ -88,12 +102,11 @@ class ListComprehension {
 	private function __construct ($expression, $Data = array()) {
 		$this->expression = $expression;
 		$this->Variables = $Data;
-		$this->addBrackets();
 	}
 	
 	private function evaluate() {
 		$Object = array(); $IteratorMatches = array(); $ReturnMatches = array();
-		if (!preg_match('#\{\s*(.+?)\s+for\s+(.+?)\s+in\s+([^\[\]]+?)(\s+if\s+(.+?))?\s*\}#ims', $this->expression, $Object)) return false;
+		if (!preg_match('#^\s*(.+?)\s+for\s+(.+?)\s+in\s+([^\[\]]+?)(\s+if\s+(.+?))?\s*$#ims', $this->expression, $Object)) return false;
     // print_r ($Object);
 		
 		$LCObject = new ListComprehensionObject();
@@ -107,18 +120,18 @@ class ListComprehension {
 		}
 		
 		$LCObject->return = trim($Object[1]);
-		if (preg_match ('#^{(.+?)=>(.+)}$#', $LCObject->return, $ReturnMatches)) {
-			$LCObject->return = trim ($ReturnMatches[2]);
-			$LCObject->returnKey = trim ($ReturnMatches[1]);
+		if (preg_match ('#=>#', $LCObject->return)) {
+		  if (!preg_match ('#array\(#i', $LCObject->return)) {
+		    $LCObject->return = sprintf ('{%s}', trim ($LCObject->return, '{}'));
+		  }
+		  if (preg_match ('#^{(.+?)=>(.+)}$#', $LCObject->return, $ReturnMatches)) {
+			  $LCObject->return = trim ($ReturnMatches[2]);
+			  $LCObject->returnKey = trim ($ReturnMatches[1]);
+		  }
 		}
 		
 		return $LCObject->run();
 	} 
-	
-	private function addBrackets() {
-		if (!preg_match ('#^\{.+?\}$#', $this->expression))
-		  $this->expression = '{' . $this->expression . '}';
-	}
 	
 }
 
