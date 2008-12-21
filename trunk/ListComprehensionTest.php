@@ -46,6 +46,25 @@ if ($Test != $Expected) {
   $errors++;
 }
 
+/* Test 4 */
+
+$Foo = array (
+  array ('name' => 'David Beckham', 'number' => 7),
+  array ('name' => 'Ronaldinho', 'number' => 10),
+  array ('name' => 'David Villa', 'number' => 9)
+);
+$Test = lc ('$player["number"] => preg_replace (\'#^[A-z]+\s#i\', "", $player["name"]) for $player in $Foo', array ('Foo' => $Foo));
+$Expected = array (7 => "Beckham", 9 => "Villa", 10 => "Ronaldinho");
+echo $Test == $Expected ? "Passed test 4\n" : "Failed test 4\n";
+if ($Test != $Expected) {
+  echo "\n--Expected:";
+  print_r ($Expected);
+  echo "\n--Result:";
+  print_r ($Test);
+  $errors++;
+}
+
+
 if (!$errors) {
 	echo "---\nAll tests passed, 0 errors.\n\n";
 } else {
