@@ -2,7 +2,7 @@
 
 /**
  * List comprehensions for PHP (php-lc)
- * @version 0.11
+ * @version 0.12
  * @author Vlad Andersen <vlad.andersen@gmail.com>
  * @link http://code.google.com/p/php-lc/
  * @license GPL
@@ -17,7 +17,9 @@
 
 if (!function_exists('lc')) {
 	/**
-	 * A shortcut for executing a list comprehension.
+	 * lc() - a shortcut for executing a list comprehension
+	 *
+	 * == Basic syntax ==
 	 * 
 	 * The syntax for php-lc expressions is the following:
 	 * 
@@ -25,7 +27,17 @@ if (!function_exists('lc')) {
 	 * 
 	 * <return> could be any expression that is using <element>, <key> (if provided, discussed below) 
 	 * or any of the passed variables. If a scalar value is used, php-lc will return an array with consecutive
-	 * numeric indexes (a list). You can also use special syntax of <return>:
+	 * numeric indexes (a list).
+	 *
+	 * == Python-style formatting
+	 *
+	 * You can easily format string in Python style by prefixing the <return> with a percent sign (%).
+	 *
+	 *    %<a href="/data/%s/">%s</a> % strtolower ($value), $value for $value in $Data
+	 *
+	 * == Returning hashes ==
+	 * 
+	 * You can also use special syntax of <return>:
 	 * 
 	 *    {substr ($value, 0, 1) => $value} for $value in $Data
 	 * 
@@ -49,13 +61,14 @@ if (!function_exists('lc')) {
 	 * When cycling through <Data>, each time <key> will be assigned to the current key value, <element> will be
 	 * assigned to the current element. <key> is optional.
 	 * 
+	 * == Other variables ==
+	 *
 	 * <Data> is the name of variable passed to the list comprehension (discussed below).
 	 * 
 	 * <condition> could be any expression that is using <element>, <key> or any of the passed variables.
 	 * Should return a boolean value. <condition> is optional.
 	 * 
-	 * 
-	 * Passing variables to php-lc:
+	 * == Passing variables to php-lc ==
 	 * 
 	 * The second argument of the function is a hash of variables that are passed into the list comprehension:
 	 * 
