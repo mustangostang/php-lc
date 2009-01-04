@@ -2,7 +2,7 @@
 
 /**
  * List comprehensions for PHP (php-lc)
- * @version 0.12
+ * @version 0.13
  * @author Vlad Andersen <vlad.andersen@gmail.com>
  * @link http://code.google.com/p/php-lc/
  * @license GPL
