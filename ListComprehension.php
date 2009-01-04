@@ -120,8 +120,11 @@ class ListComprehension {
 		}
 		
 		$LCObject->return = trim($Object[1]);
+		if (preg_match ('#^%(.+) % (.+)$#', $LCObject->return, $Matches)) {
+			$LCObject->return = "sprintf ('" . $Matches[1] . "', " . $Matches[2] . ')';
+		}
 		if (preg_match ('#=>#', $LCObject->return)) {
-		  if (!preg_match ('#array\(#i', $LCObject->return)) {
+		  if (!preg_match ('#array#i', $LCObject->return)) {
 		    $LCObject->return = sprintf ('{%s}', trim ($LCObject->return, '{}'));
 		  }
 		  if (preg_match ('#^{(.+?)=>(.+)}$#', $LCObject->return, $ReturnMatches)) {
