@@ -82,6 +82,25 @@ if ($Test != $Expected) {
   $errors++;
 }
 
+
+$Foo = array (
+  array ('name' => 'Beckham', 'number' => 7),
+  array ('name' => 'Ronaldinho', 'number' => 10),
+  array ('name' => 'Arshavin', 'number' => 10),
+  array ('name' => 'Raul', 'number' => 7),
+  array ('name' => 'Villa', 'number' => 9),
+);
+$Test = lc ('$player["number"] => [$player["name"]] for $player in $Foo', array ('Foo' => $Foo));
+$Expected = array (7 => array ("Beckham", "Raul"), 10 => array ("Ronaldinho", "Arshavin"), 9 => array ("Villa"));
+echo $Test == $Expected ? "Passed test 5\n" : "Failed test 5\n";
+if ($Test != $Expected) {
+  echo "\n--Expected:";
+  print_r ($Expected);
+  echo "\n--Result:";
+  print_r ($Test);
+  $errors++;
+}
+
 if (!$errors) {
 	echo "---\nAll tests passed, 0 errors.\n\n";
 } else {
