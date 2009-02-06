@@ -26,7 +26,7 @@ if (!function_exists('lc')) {
 	 *    <return> for [<key> => ]<element> in <Data> [if <condition>]
 	 * 
 	 * <return> could be any expression that is using <element>, <key> (if provided, discussed below) 
-	 * or any of the passed variables. If a scalar value is used, php-lc will return an array with consecutive
+	 * or any of the passed variables. If no <key> is provided, php-lc will return an array with consecutive
 	 * numeric indexes (a list).
 	 *
 	 * == Python-style formatting
@@ -56,6 +56,13 @@ if (!function_exists('lc')) {
 	 *    { $value => array ($value) } for $value in Data
 	 *
 	 * Also please note that you can use only scalar values as keys if you choose to return hashes.
+   *
+   * You can also user the following code:
+   *
+   *    substr ($value, 0, 1) => [$value] for $value in $Data
+   *
+   * To create hashes with arrays (lists) of elements (e.g., this code will group values according to its first
+   * letter).
 	 * 
 	 * <key> and <element> should be regular PHP variables that you'll be using in <return> and <condition>.
 	 * When cycling through <Data>, each time <key> will be assigned to the current key value, <element> will be
@@ -144,6 +151,10 @@ class ListComprehension {
 			  $LCObject->return = trim ($ReturnMatches[2]);
 			  $LCObject->returnKey = trim ($ReturnMatches[1]);
 		  }
+      if (preg_match ('#^\[.+\]$#', $LCObject->return)) {
+        $LCObject->return = substr ($LCObject->return, 1, -1);
+        $LCObject->optionReturnArrayInHash = true;
+      }
 		}
 		
 		return $LCObject->run();
@@ -162,6 +173,10 @@ class ListComprehensionObject {
 	public $iteratorKeyName = '';
 	public $return;
 	public $returnKey = '';
+  /**
+   * @var bool True if syntax of $k => [$v] used.
+   */
+  public $optionReturnArrayInHash = false;
 	
 	private $currentIterator;
 	
@@ -174,7 +189,8 @@ class ListComprehensionObject {
 			$filterFunction = create_function($this->iteratorName, $filterExpression);
 			$this->Iterable = array_filter($this->Iterable, $filterFunction);
 		} else {
-			$filterExpression = 'extract ($GLOBALS["'.ListComprehension::GLOBAL_ID.'"]); if (' . $this->condition . ') return array (' . $this->iteratorKeyName . ' => ' . $this->iteratorName . ');';
+			$filterExpression = 'extract ($GLOBALS["'.ListComprehension::GLOBAL_ID.'"]); if (' . $this->condition . ') return array (' .
+                          $this->iteratorKeyName . ' => ' . $this->iteratorName . ');';
 			$filterFunction = create_function($this->iteratorKeyName . ',' . $this->iteratorName, $filterExpression);
 			$this->Iterable = array_map($filterFunction, array_keys($this->Iterable), $this->Iterable);
 			$this->Iterable = array_filter ($this->Iterable);
@@ -192,6 +208,8 @@ class ListComprehensionObject {
 			
 		if (!$this->iteratorKeyName) {
 		  $returnFunction = create_function($this->iteratorName, $returnExpression);
+      if (!is_callable($returnFunction))
+        die ("Failed to execute the following lc-expression: " . $returnExpression);
 		  $this->Iterable = array_map($returnFunction, $this->Iterable);
 		} else {
 		  $returnFunction = create_function($this->iteratorKeyName . ',' . $this->iteratorName, $returnExpression);
@@ -203,12 +221,20 @@ class ListComprehensionObject {
 		if (!$this->returnKey)   
 			return array_values($this->Iterable);
 			
-	    $Data = array();
-		foreach ($this->Iterable as $Arr)
-		  $Data[key($Arr)] = current($Arr);
-		  $this->Iterable = $Data;
-	    return $this->Iterable;
-		
+	  $Data = array();
+		foreach ($this->Iterable as $Arr) {
+      if (!$this->optionReturnArrayInHash) {
+        $Data[key($Arr)] = current($Arr);
+        continue;
+      }
+      // If option return array in hash.
+      if (!isset ($Data[key($Arr)]))
+        $Data[key($Arr)] = array();
+      $Data[key($Arr)][] = current($Arr);
+    }
+
+    $this->Iterable = $Data;
+	  return $this->Iterable;
 	}
 	
 	
