@@ -91,7 +91,7 @@ if (!function_exists('lc')) {
 	 * is:
 	 * 
 	 *    compact ('Data', 'foo') 
-	 * 
+	 *
 	 * @param string $expression List comprehension expression
 	 * @param array $Data List comprehension variables
 	 * @return array
@@ -100,6 +100,119 @@ if (!function_exists('lc')) {
     return ListComprehension::execute($expression, $Data);
   }
 }
+
+ /** == Tests are included as doctests, see http://code.google.com/p/testing-doctest/ ==
+  *
+  * <code>
+  * // doctest: Simple arrays
+  * // flags: NORMALIZE_WHITESPACE
+  * $Foo = array (1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+  * print_r (lc ('$i*2 for $i in $Foo if $i > 5', compact ('Foo')));
+  * // expects:
+  * // Array
+  * // (
+  * //   [0] => 12
+  * //   [1] => 14
+  * //   [2] => 16
+  * //   [3] => 18
+  * //   [4] => 20
+  * // )
+  * </code>
+  *
+  * <code>
+  * // doctest: String operations
+  * // flags: NORMALIZE_WHITESPACE
+  * $Foo = array ('Alabama', 'California', 'Texas', 'New York');
+  * print_r (lc ('strtoupper($state) for $state in $Foo if strlen ($state) > 5 and strlen ($state) < 9', array ('Foo' => $Foo)));
+  * // expects:
+  * // Array
+  * // (
+  * //   [0] => ALABAMA
+  * //   [1] => NEW YORK
+  * // )
+  * </code>
+  *
+  * <code>
+  * // doctest: String hashes
+  * // flags: NORMALIZE_WHITESPACE
+  * $Foo = array ('AL' => 'Alabama', 'CA' => 'California', 'TE' => 'Texas', 'NY' => 'New York');
+  * print_r (lc ('{strtoupper($state) => strtolower ($code)} for $code => $state in $Foo if strlen ($state) > 5 and strlen ($state) < 9', array ('Foo' => $Foo)));
+  * // expects:
+  * // Array
+  * // (
+  * //   [ALABAMA] => al
+  * //   [NEW YORK] => ny
+  * // )
+  * </code>
+  *
+  * <code>
+  * // doctest: Hashes and regular expressions
+  * // flags: NORMALIZE_WHITESPACE
+  * $Foo = array (
+  *   array ('name' => 'David Beckham', 'number' => 7),
+  *   array ('name' => 'Ronaldinho', 'number' => 10),
+  *   array ('name' => 'David Villa', 'number' => 9)
+  * );
+  * print_r (lc ('$player["number"] => preg_replace (\'#^[A-z]+\s#i\', "", $player["name"]) for $player in $Foo', array ('Foo' => $Foo)));
+  * // expects:
+  * // Array
+  * // (
+  * //   [7] => Beckham
+  * //   [10] => Ronaldinho
+  * //   [9] => Villa
+  * // )
+  * </code>
+  *
+  * <code>
+  * // doctest: Short syntax for sprintf
+  * // flags: NORMALIZE_WHITESPACE
+  * $Foo = array (
+  *   array ('title' => 'Brad Pitt', 'id' => "nm0000093"),
+  *   array ('title' => 'Al Pacino', 'id' => "nm0000199"),
+  *   array ('title' => 'Keanu Reeves', 'id' => "nm0000206")
+  * );
+  * print_r (lc ('%<a href="http://www.imdb.com/%s">%s</a> % $actor["id"], $actor["title"] for $actor in $Foo', array ('Foo' => $Foo)));
+  * // expects:
+  * // Array
+  * // (
+  * //   [0] => <a href="http://www.imdb.com/nm0000093">Brad Pitt</a>
+  * //   [1] => <a href="http://www.imdb.com/nm0000199">Al Pacino</a>
+  * //   [2] => <a href="http://www.imdb.com/nm0000206">Keanu Reeves</a>
+  * // )
+  * </code>
+  *
+  * <code>
+  * // doctest: Syntax for arrays inside arrays ([])
+  * // flags: NORMALIZE_WHITESPACE
+  * $Foo = array (
+  *   array ('name' => 'Beckham', 'number' => 7),
+  *   array ('name' => 'Ronaldinho', 'number' => 10),
+  *   array ('name' => 'Arshavin', 'number' => 10),
+  *   array ('name' => 'Raul', 'number' => 7),
+  *   array ('name' => 'Villa', 'number' => 9)
+  * );
+  * print_r (lc ('$player["number"] => [$player["name"]] for $player in $Foo', array ('Foo' => $Foo)));
+  * // expects:
+  * // Array
+  * // (
+  * //   [7] => Array
+  * //   (
+  * //      [0] => Beckham
+  * //      [1] => Raul
+  * //   )
+  * //   [10] => Array
+  * //   (
+  * //      [0] => Ronaldinho
+  * //      [1] => Arshavin
+  * //   )
+  * //   [9] => Array
+  * //   (
+  * //      [0] => Villa
+  * //   )
+  * // )
+  * </code>
+  * 
+  */
 
 class ListComprehension {
 	private $expression = '';
