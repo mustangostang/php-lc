@@ -1,6 +1,6 @@
 #summary More examples of php-lc use
 
-= Python-style string formatting =
+==Python-style string formatting==
 
 We can also use a special syntax for formatting strings in style of Python by prefixing the whole expression with a percent sign:
 
