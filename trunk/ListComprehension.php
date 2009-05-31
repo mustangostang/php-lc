@@ -200,6 +200,13 @@ class ListComprehensionObject {
 			$this->Iterable = $Data;
 		}
 
+    // String manupulation
+    while (preg_match ('#(\$[A-z0-9_]+)\[([0-9]*):([0-9]*)\]#', $this->return, $Matches)) {
+      $this->return = str_replace ($Matches[0], sprintf ('substr (%s, %s%s%s)', $Matches[1], ($Matches[2] ? $Matches[2] : '0') ,
+          ($Matches[3] ? ', ' : ''), ($Matches[3] <= 0 ? $Matches[3] : $Matches[3] - $Matches[2]) ), $this->return);
+    }
+
+
 		if (!$this->returnKey) {
 			$returnExpression = 'extract ($GLOBALS["'.ListComprehension::GLOBAL_ID.'"]); return (' . $this->return . ');';
 		} else {

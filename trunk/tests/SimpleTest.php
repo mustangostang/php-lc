@@ -60,4 +60,33 @@ class SimpleTest extends PHPUnit_Framework_TestCase {
       $Expected = array (7 => array ('Beckham', 'Raul'), 10 => array ('Ronaldinho', 'Arshavin'), 9 => array ('Villa'));
       $this->assertEquals ($Expected, $Result);
     }
+
+
+    public function testStringBracketsInArgument() {
+      $Data = array (
+        '1 foo', '2bar', '3  baz'
+      );
+      $Result = lc ('trim($i[1:]) for $i in $Data', array ('Data' => $Data));
+      $Expected = array ('foo', 'bar', 'baz');
+      $this->assertEquals ($Expected, $Result);
+    }
+
+    public function testStringBracketsInArgument2() {
+      $Data = array (
+        'foo', 'bar', 'baz'
+      );
+      $Result = lc ('$i[1:2] for $i in $Data', array ('Data' => $Data));
+      $Expected = array ('o', 'a', 'a');
+      $this->assertEquals ($Expected, $Result);
+    }
+
+    public function testStringBracketsInArgument3() {
+      $Data = array (
+        'foo', 'bar', 'baz'
+      );
+      $Result = lc ('$i[:1] for $i in $Data', array ('Data' => $Data));
+      $Expected = array ('f', 'b', 'b');
+      $this->assertEquals ($Expected, $Result);
+    }
+
 }
