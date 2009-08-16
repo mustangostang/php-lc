@@ -89,4 +89,13 @@ class SimpleTest extends PHPUnit_Framework_TestCase {
       $this->assertEquals ($Expected, $Result);
     }
 
+    public function testStartswith() {
+      $Data = array (
+        'foo', 'bar', 'baz'
+      );
+      $Result = lc1 ('$i[:-1] for $i in $Data if $i ~= "^ba"', $Data);
+      $Expected = array ('ba', 'ba');
+      $this->assertEquals ($Expected, $Result);
+    }
+
 }
